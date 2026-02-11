@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vandehoeken Citizens</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif; }
-        iframe { width: 100%; height: 100%; border: none; }
-        #debug { position: fixed; bottom: 0; background: rgba(0,0,0,0.5); color: white; padding: 5px; font-size: 10px; }
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; background: #ffffff; }
+        iframe { border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     </style>
 </head>
 <body>
-    <iframe src="https://vandehoekencitizens.base44.app/"></iframe>
-    
-    <div id="debug">Connecting to: vandehoekencitizens.base44.app</div>
+    <iframe 
+        id="app-frame"
+        src="https://vandehoekencitizens.base44.app/" 
+        referrerpolicy="no-referrer"
+        sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
+        allow="clipboard-write">
+    </iframe>
+
+    <script>
+        // Forces the frame to reload without sending the GitHub "identity" header
+        window.onload = function() {
+            var frame = document.getElementById('app-frame');
+            if (frame.src.indexOf('?') === -1) {
+                frame.src += "?ref=direct";
+            }
+        };
+    </script>
 </body>
 </html>
