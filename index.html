@@ -9,11 +9,13 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#3498db">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background-color: #ffffff; }
-        #app-wrapper { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-        iframe { border: none; width: 100%; height: 100%; display: block; }
+        #app-wrapper { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; }
+        iframe { border: none; width: 100%; height: 100%; flex-grow: 1; -webkit-overflow-scrolling: touch; }
+        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
@@ -31,26 +33,30 @@
     <script>
         const iframe = document.getElementById('main-app');
 
-        // 1. LISTEN FOR LOGIN SUCCESS FROM BASE44 AI CODE
-        window.addEventListener('message', function(event) {
-            // Only trust messages from your app
+        // 1. SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('pwabuilder-sw.js')
+                    .then(reg => console.log('Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Failed:', err));
+            });
+        }
+
+        // 2. LOGIN LISTENER (Matches the AI Prompt we used)
+        window.addEventListener('message', (event) => {
             if (event.origin === "https://vandehoekencitizens.base44.app") {
                 if (event.data === 'login-success') {
-                    console.log("Login detected! Refreshing frame...");
+                    console.log("Login detected via PostMessage.");
                     iframe.contentWindow.location.reload();
                 }
             }
         });
 
-        // 2. REFRESH ON TAB FOCUS (Backup for OAuth redirects)
-        window.addEventListener('focus', function() {
+        // 3. FALLBACK REFRESH ON FOCUS
+        window.addEventListener('focus', () => {
+            console.log("App focused. Syncing session...");
             iframe.contentWindow.location.reload();
         });
-
-        // 3. REGISTER SERVICE WORKER (For APK/PWA support)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('pwabuilder-sw.js');
-        }
     </script>
 </body>
 </html>
